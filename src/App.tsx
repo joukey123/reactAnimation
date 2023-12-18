@@ -1,19 +1,25 @@
 import styled from "styled-components";
-import { motion } from "framer-motion";
-import { useRef } from "react";
+import {
+  motion,
+  useMotionValue,
+  useMotionValueEvent,
+  useScroll,
+  useTransform,
+} from "framer-motion";
+import { useEffect, useRef } from "react";
 
-const Wapper = styled.div`
+const Wapper = styled(motion.div)`
   width: 100vw;
-  height: 100vh;
+  height: 200vh;
   display: flex;
   align-items: center;
   justify-content: center;
 `;
 
 const Box = styled(motion.div)`
-  width: 200px;
-  height: 200px;
-  border-radius: 40px;
+  width: 100px;
+  height: 100px;
+  border-radius: 20px;
   background-color: rgb(255, 255, 255);
   box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.06);
 `;
@@ -42,7 +48,25 @@ const boxVars = {
 
 function App() {
   const biggerBoxRef = useRef<HTMLDivElement>(null);
+  const x = useMotionValue(0);
+  const rotateZ = useTransform(x, [-600, 600], [-360, 360]);
+
+  const { scrollYProgress } = useScroll();
+
+  useMotionValueEvent(scrollYProgress, "change", () => {
+    console.log(scrollYProgress.get());
+  });
+  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [1, 5, 1]);
+  const background = useTransform(
+    x,
+    [-600, 600],
+    [
+      "linear-gradient(135deg, rgb(0, 238, 238), rgb(0, 131, 238))",
+      "linear-gradient(135deg, rgb(13, 226, 1), rgb(238, 210, 0))",
+    ]
+  );
   return (
+    /* DRAG 박스
     <Wapper>
       <BigBox ref={biggerBoxRef}>
         <Box
@@ -54,6 +78,11 @@ function App() {
           whileTap="click"
         />
       </BigBox>
+    </Wapper>
+    */
+
+    <Wapper style={{ background }}>
+      <Box style={{ x, rotateZ, scale }} drag="x" dragSnapToOrigin></Box>
     </Wapper>
   );
 }
